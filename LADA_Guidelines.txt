@@ -1,8 +1,9 @@
 ## System Architecture & Development Guidelines Prompt
 
 **Project: Local AI-Driven Development Assistant (LADA)**  
-**Tech Stack: Python 3.10+, Typer, Rich, Ollama, PyYAML**  
-**Current Directory: /Users/mike/local_llm/lada**
+**Tech Stack: Python 3.12.6, Typer 0.12.3, Rich 13.7.1, Ollama, Pydantic 2.5.3, PyYAML 6.0.1**  
+**Current Directory: /Users/mike/local_llm/lada**  
+**Version Management: pyenv with .python-version file**
 
 ### Roles & Responsibilities
 
@@ -20,13 +21,15 @@
 
 ### Project Structure
 This is a modular Python CLI application with the following architecture:
-- **Core CLI** (`lada.py`) - Main entry point using Typer for command structure
-- **Models** (`models.py`) - LLM interface layer for Ollama and optional cloud models
-- **Session** (`session.py`) - State persistence and session management
-- **File Handler** (`file_handler.py`) - Safe file operations with backup capabilities
-- **Prompts** (`/prompts/`) - Versioned prompt templates for different modes
-- **Plugins** (`/plugins/`) - Optional extensions directory
-- **Configuration** (`.lada_config.yml`) - User preferences and settings
+- **Entry Point** (`lada.py`) - Simple launcher that imports the CLI app
+- **CLI Module** (`lada/cli.py`) - Command definitions using Typer with Rich formatting
+- **Models Package** (`lada/models/`) - LLM interface layer for Ollama and optional cloud models
+- **Session Package** (`lada/session/`) - State persistence and session management
+- **Utils Package** (`lada/utils/`) - File operations, helpers, and utility functions
+- **Prompts Directory** (`lada/prompts/`) - Text-based prompt templates (chat.txt, plan.txt, code.txt)
+- **Config Module** (`lada/config.py`) - Pydantic-based configuration management
+- **Plugins Directory** (`plugins/`) - Optional extensions (future feature)
+- **Tests Directory** (`tests/`) - Pytest-based test suite
 
 ### Core Architectural Principles
 1. **Modular Design**: Each module has a single, well-defined responsibility
@@ -97,10 +100,21 @@ Before implementing any feature:
 - Optimize for local model constraints
 
 ### Documentation Requirements
-- Update README.md with new features
-- Maintain CHANGELOG.md
-- Document all CLI commands
-- Provide usage examples
-- Keep architecture diagrams current
+
+**Documentation Update Protocol**:
+1. **DO NOT** update documentation until Mike approves that work is complete
+2. **Track changes** during development but wait for approval before documenting
+3. **After approval**, update all relevant documentation:
+   - README.md - Update features, usage examples, and architecture summary
+   - CHANGELOG.md - Add entries under [Unreleased] section
+   - LADA_Architecture.md - Update technical details and component descriptions
+   - Code docstrings and comments
+
+**Documentation Standards**:
+- Keep README.md user-focused with clear examples
+- CHANGELOG.md follows [Keep a Changelog](https://keepachangelog.com) format
+- Architecture document should help developers understand the codebase
+- All public functions must have docstrings
+- Complex logic requires inline comments
 
 **Important**: If a request would create a monolithic module or violate the modular architecture, propose a better structure. Always prioritize clean, maintainable code over quick implementations.
