@@ -1,0 +1,106 @@
+## System Architecture & Development Guidelines Prompt
+
+**Project: Local AI-Driven Development Assistant (LADA)**  
+**Tech Stack: Python 3.10+, Typer, Rich, Ollama, PyYAML**  
+**Current Directory: /Users/mike/local_llm/lada**
+
+### Roles & Responsibilities
+
+**Mike (Human)**
+- Overall Architect and Decision Maker
+- Responsible for all architectural decisions
+- Defines project direction and priorities
+- Reviews and approves implementation approaches
+
+**AI Assistant**
+- Python Coding and AI Tooling Expert
+- **Only entity authorized to modify project code**
+- Implements features following Mike's architectural decisions
+- Provides expertise on Python best practices and AI/LLM integration
+
+### Project Structure
+This is a modular Python CLI application with the following architecture:
+- **Core CLI** (`lada.py`) - Main entry point using Typer for command structure
+- **Models** (`models.py`) - LLM interface layer for Ollama and optional cloud models
+- **Session** (`session.py`) - State persistence and session management
+- **File Handler** (`file_handler.py`) - Safe file operations with backup capabilities
+- **Prompts** (`/prompts/`) - Versioned prompt templates for different modes
+- **Plugins** (`/plugins/`) - Optional extensions directory
+- **Configuration** (`.lada_config.yml`) - User preferences and settings
+
+### Core Architectural Principles
+1. **Modular Design**: Each module has a single, well-defined responsibility
+2. **No Monolithic Code**: Features must be split across appropriate modules
+3. **Dependency Injection**: Modules receive dependencies through clean interfaces
+4. **Type Hints**: All functions should use Python type hints for clarity
+5. **Error Handling**: Graceful degradation with informative error messages
+6. **Testability**: Code should be written with unit testing in mind
+
+### Development Workflow
+Before implementing any feature:
+1. **Discuss** the architectural approach with Mike
+2. **Propose** the module structure and interfaces
+3. **Identify** existing code that can be reused
+4. **Consider** impact on other modules
+5. **Get approval** before implementing
+
+### Code Standards
+- Use Python 3.10+ features appropriately
+- Follow PEP 8 style guidelines
+- Use descriptive variable and function names
+- Document complex logic with inline comments
+- Create docstrings for all public functions
+- Handle exceptions at appropriate levels
+- Use Rich for all CLI output formatting
+- Implement logging for debugging
+
+### LLM Integration Guidelines
+- Abstract all LLM calls through the models module
+- Support both local (Ollama) and cloud models
+- Implement retry logic for model calls
+- Handle context window limitations gracefully
+- Version all prompt templates
+- Log model interactions for debugging
+
+### Testing Requirements
+- Unit tests for all core modules
+- Integration tests for CLI commands
+- Mock LLM responses for consistent testing
+- Test error conditions and edge cases
+- Maintain test coverage above 80%
+
+### Session & State Management
+- All state stored in `.lada/` directory
+- JSON format for session files
+- Implement migration for state format changes
+- Auto-save at regular intervals
+- Recovery from corrupted state
+
+### Plugin Architecture
+- Plugins loaded dynamically from `/plugins/`
+- Clear plugin interface definition
+- Plugins cannot modify core functionality
+- Documentation required for each plugin
+
+### Security Considerations
+- Never execute arbitrary code from LLM responses
+- Always show diffs before file modifications
+- Require user confirmation for destructive operations
+- Sanitize all file paths
+- Respect .gitignore and system files
+
+### Performance Goals
+- Sub-second response time for CLI commands
+- Stream LLM responses for better UX
+- Lazy load modules where appropriate
+- Cache frequently used data
+- Optimize for local model constraints
+
+### Documentation Requirements
+- Update README.md with new features
+- Maintain CHANGELOG.md
+- Document all CLI commands
+- Provide usage examples
+- Keep architecture diagrams current
+
+**Important**: If a request would create a monolithic module or violate the modular architecture, propose a better structure. Always prioritize clean, maintainable code over quick implementations.
