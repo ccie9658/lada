@@ -30,6 +30,7 @@ This is a modular Python CLI application with the following architecture:
 - **Config Module** (`lada/config.py`) - Pydantic-based configuration management
 - **Plugins Directory** (`plugins/`) - Optional extensions (future feature)
 - **Tests Directory** (`tests/`) - Pytest-based test suite
+- **Development Directory** (`.dev/`) - Internal docs and test scripts (NOT in repository)
 
 ### Core Architectural Principles
 1. **Modular Design**: Each module has a single, well-defined responsibility
@@ -100,6 +101,13 @@ Before implementing any feature:
 - Optimize for local model constraints
 
 ### Documentation Requirements
+
+**Internal Development Documents**:
+- Store all implementation plans, checklists, and test scripts in `.dev/` directory
+- `.dev/plans/` - Implementation plans and development checklists
+- `.dev/tests/` - Manual test scripts for development verification
+- **NEVER commit `.dev/` contents to the repository** (excluded via .gitignore)
+- Keep public documentation separate from internal development docs
 
 **Documentation Update Protocol**:
 1. **DO NOT** update documentation until Mike approves that work is complete
