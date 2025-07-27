@@ -6,12 +6,14 @@ including the chat, plan, and code modes.
 """
 
 from typing import Optional
+import asyncio
 import typer
 from rich.console import Console
 from rich.panel import Panel
 from pathlib import Path
 
 from lada import __version__
+from lada.commands import chat_mode as run_chat_mode
 
 # Initialize Typer app and Rich console
 app = typer.Typer(
@@ -61,17 +63,12 @@ def chat(
     """
     Start an interactive chat session with the AI assistant.
     """
-    console.print(
-        Panel.fit(
-            "🤖 [bold cyan]LADA Chat Mode[/bold cyan]\n"
-            "Type 'exit' or 'quit' to end the session.",
-            border_style="cyan",
-        )
-    )
-    console.print(f"Using model: [green]{model}[/green]\n")
-    
-    # TODO: Implement chat functionality
-    console.print("[yellow]Chat mode not yet implemented.[/yellow]")
+    try:
+        asyncio.run(run_chat_mode(model))
+    except KeyboardInterrupt:
+        console.print("\n👋 Chat interrupted.")
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
 
 
 @app.command()
