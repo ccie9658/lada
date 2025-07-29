@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Flexible Prompt Templates**: Adaptive prompts that adjust based on context and input type
 - **Rich Output Formatting**: Beautiful markdown rendering for all generated content
 - **Command-Specific Model Overrides**: All commands now support --model parameter
+- **MLX Server Implementation**: FastAPI server wrapper for MLX models with Ollama-compatible API
+- **MLX Model Support**: Integration with MLX-community models (Qwen2.5, Llama-3.2, GLM-4.5)
+- **Server Launch Script**: Convenient CLI for starting MLX server with configurable options
 
 ### Changed
 - **Configuration System**: Upgraded from simple model config to advanced multi-engine configuration
@@ -52,6 +55,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Code Generation Features**: Extract code from markdown, save to files, refactoring support
 - **Plan Command Enhancement**: Flexible prompts, file analysis, markdown output
 - **Chat Command Refactor**: Multi-engine support with proper error handling
+- **MLX Server Architecture**: FastAPI-based server with modular wrapper for MLX models
+- **Ollama-Compatible API**: MLX server implements /v1/completions endpoint for compatibility
+- **Model Management**: Dynamic loading/unloading of MLX models with memory optimization
+- **Server Test Suite**: Comprehensive testing for MLX server endpoints and functionality
 
 ## [0.1.0] - TBD (First Alpha Release)
 
