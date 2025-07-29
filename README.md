@@ -212,54 +212,26 @@ python lada.py chat --model mlx:GLM-4.5-Air
 python lada.py plan file.py --model llama2:13b
 ```
 
-## MLX Server
+## Documentation
+
+- **[MLX Setup Guide](docs/MLX_SETUP_GUIDE.md)** - Complete guide for using MLX models with LADA on Apple Silicon
+- **[Configuration Examples](examples/lada_config.yml)** - Comprehensive configuration file with all options explained
+- **[Architecture Overview](LADA_Architecture.md)** - Detailed system architecture and design decisions
+- **[Development Guidelines](LADA_Guidelines.txt)** - Contributing guidelines and best practices
+
+## MLX Server (Quick Start)
 
 LADA includes a FastAPI server wrapper for MLX models that provides Ollama-compatible endpoints. This allows seamless integration of MLX models with Apple Silicon acceleration.
 
-### Starting the MLX Server
-
 ```bash
-# Activate the virtual environment
-source venv/bin/activate
-
-# Start the server with default settings
+# Start the MLX server
 python scripts/start_mlx_server.py
 
-# Start with custom options
-python scripts/start_mlx_server.py --host 0.0.0.0 --port 8080 --log-level DEBUG
-
-# Preload a model on startup
-python scripts/start_mlx_server.py --preload-model Qwen2.5-0.5B-Instruct
+# Use MLX models in LADA
+python lada.py chat --model mlx:Qwen2.5-1.5B-Instruct
 ```
 
-### MLX Server Endpoints
-
-- `GET /health` - Health check and server status
-- `GET /v1/models` - List available MLX models
-- `POST /v1/completions` - Generate text (Ollama-compatible)
-- `POST /models/{model_name}/load` - Load a specific model
-- `POST /models/unload` - Unload current model
-
-### Available MLX Models
-
-- `Qwen2.5-0.5B-Instruct` (~400MB)
-- `Qwen2.5-1.5B-Instruct` (~1.2GB)
-- `Qwen2.5-3B-Instruct` (~2.4GB)
-- `Llama-3.2-1B-Instruct` (~800MB)
-- `Llama-3.2-3B-Instruct` (~2.4GB)
-- `GLM-4.5-Air` (Coming soon)
-
-### MLX Configuration
-
-In your `.lada_config.yml`:
-
-```yaml
-model:
-  engines:
-    mlx:
-      host: "http://localhost:8000"
-      timeout: 180
-```
+For detailed MLX setup and configuration, see the [MLX Setup Guide](docs/MLX_SETUP_GUIDE.md).
 
 ## Project Status
 

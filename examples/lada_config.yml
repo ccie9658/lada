@@ -1,0 +1,117 @@
+# LADA Configuration Example - Multi-Engine Setup
+# This file demonstrates all available configuration options for LADA
+# Place this file as .lada_config.yml in your project root
+
+# Configuration version (required for v2 features)
+version: 2
+
+# Model configuration with per-mode selection and multi-engine support
+model:
+  # ===== Per-Mode Model Selection =====
+  # Specify different models for each LADA mode
+  # Format: "engine:model" or just "model" (defaults to ollama)
+  
+  # Model for interactive chat sessions
+  chat_model: "codellama:7b"              # Good for conversational AI
+  
+  # Model for generating implementation plans
+  plan_model: "mlx:Qwen2.5-3B-Instruct"   # MLX model for faster planning
+  
+  # Model for code generation and refactoring
+  code_model: "deepseek-coder:6.7b"       # Specialized for code tasks
+
+  # ===== Legacy/Fallback Configuration =====
+  # Used when mode-specific models aren't set
+  default_model: "codellama:7b"
+  
+  # Legacy Ollama host (migrated to engines.ollama.host)
+  # ollama_host: "http://localhost:11434"  # Deprecated - use engines section
+
+  # ===== Engine Configurations =====
+  # Configure each LLM engine separately
+  engines:
+    # Ollama configuration
+    ollama:
+      host: "http://localhost:11434"     # Ollama API endpoint
+      timeout: 120                        # Request timeout in seconds
+      max_retries: 3                      # Retry failed requests
+      
+    # MLX configuration (for Apple Silicon Macs)
+    mlx:
+      host: "http://localhost:8000"      # MLX server endpoint
+      timeout: 180                        # Longer timeout for larger models
+      extra_params:                       # MLX-specific parameters
+        gpu_layers: 32                    # Number of layers to offload to GPU
+        # Add more MLX-specific params here
+
+  # ===== Global Model Parameters =====
+  # Applied to all models unless overridden
+  temperature: 0.7        # Creativity vs consistency (0.0-1.0)
+  max_tokens: 4096       # Maximum response length
+  # Note: MLX currently only supports max_tokens
+
+# ===== Session Management =====
+# Configure how LADA handles conversation sessions
+session_dir: ".lada/sessions"      # Where to store session files
+auto_save: true                    # Automatically save sessions
+auto_save_interval: 300            # Save every 5 minutes (in seconds)
+
+# ===== Output Directories =====
+# Where LADA saves generated content
+plan_dir: ".lada/plans"           # Generated implementation plans
+backup_dir: ".lada/backups"       # Configuration backups
+
+# ===== Advanced Configuration Examples =====
+# Uncomment and modify as needed:
+
+# Example 1: All Ollama setup (traditional)
+# model:
+#   chat_model: "llama2:13b"
+#   plan_model: "codellama:13b"
+#   code_model: "codellama:13b"
+#   engines:
+#     ollama:
+#       host: "http://localhost:11434"
+
+# Example 2: All MLX setup (Apple Silicon optimized)
+# model:
+#   chat_model: "mlx:Llama-3.2-3B-Instruct"
+#   plan_model: "mlx:Qwen2.5-3B-Instruct"
+#   code_model: "mlx:Qwen2.5-3B-Instruct"
+#   engines:
+#     mlx:
+#       host: "http://localhost:8000"
+
+# Example 3: Mixed setup for optimal performance
+# model:
+#   chat_model: "llama2:7b"                    # Fast Ollama for chat
+#   plan_model: "mlx:GLM-4.5-Air"              # Powerful MLX for planning
+#   code_model: "deepseek-coder:6.7b"          # Specialized for coding
+#   temperature: 0.5                           # Lower temp for more focused output
+
+# ===== Troubleshooting Tips =====
+# 
+# 1. "Cannot connect to Ollama":
+#    - Ensure Ollama is running: `ollama serve`
+#    - Check if port 11434 is available
+#    - Verify host URL matches your setup
+#
+# 2. "Cannot connect to MLX server":
+#    - Start MLX server: `python scripts/start_mlx_server.py`
+#    - Check if port 8000 is available
+#    - Ensure you're on Apple Silicon Mac
+#
+# 3. "Model not found":
+#    - For Ollama: `ollama pull model-name`
+#    - For MLX: Models download automatically on first use
+#    - Use `python lada.py chat --model engine:model` to test
+#
+# 4. "Configuration not loading":
+#    - Ensure file is named `.lada_config.yml` (with leading dot)
+#    - Check YAML syntax (proper indentation)
+#    - Look for error messages in console
+#
+# 5. Migration from v1:
+#    - LADA automatically migrates old configs
+#    - Backup created as `.lada_config.yml.backup`
+#    - Review migrated settings for correctness
