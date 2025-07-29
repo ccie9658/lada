@@ -1,0 +1,61 @@
+# LADA Configuration Example
+# This file demonstrates the multi-engine configuration capabilities
+
+version: 2  # Configuration schema version
+
+model:
+  # Per-mode model selection
+  # You can use different models for each mode
+  chat_model: "codellama:7b"           # Model for interactive chat
+  plan_model: "mlx:GLM-4.5-Air"        # Model for planning (MLX)
+  code_model: "deepseek-coder:6.7b"    # Model for code generation
+  
+  # Default model (used when mode-specific model is not set)
+  default_model: "codellama:7b"
+  
+  # Engine configurations
+  engines:
+    ollama:
+      host: "http://localhost:11434"
+      timeout: 120
+      max_retries: 3
+    
+    mlx:
+      host: "http://localhost:8000"
+      timeout: 180  # MLX models may need more time
+      max_retries: 3
+      extra_params:
+        gpu_layers: 32  # MLX-specific parameters
+  
+  # Global model parameters
+  temperature: 0.7
+  max_tokens: 4096  # Optional: limit response length
+
+# Session and storage settings
+session_dir: ".lada/sessions"
+plan_dir: ".lada/plans"
+backup_dir: ".lada/backups"
+
+# Auto-save settings
+auto_save: true
+auto_save_interval: 300  # seconds
+
+# Example configurations for different use cases:
+
+# 1. All Ollama setup (traditional)
+# model:
+#   chat_model: "codellama:7b"
+#   plan_model: "codellama:7b"
+#   code_model: "codellama:7b"
+
+# 2. Mixed setup (MLX for planning, Ollama for code)
+# model:
+#   chat_model: "mistral:latest"
+#   plan_model: "mlx:GLM-4.5-Air"
+#   code_model: "deepseek-coder:6.7b"
+
+# 3. All MLX setup
+# model:
+#   chat_model: "mlx:GLM-4.5-Air"
+#   plan_model: "mlx:GLM-4.5-Air"
+#   code_model: "mlx:GLM-4.5-Air"

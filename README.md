@@ -8,10 +8,11 @@ LADA is designed with a modular architecture to ensure scalability and maintaina
 
 - **CLI Interface** (`lada.py`): Main entry point, built using Typer and Rich for a user-friendly command-line experience.
 - **Core Modules**:
-  - **Models**: Interfaces with local LLMs (using Ollama) and optional cloud models for AI processing.
+  - **Models**: Multi-engine LLM support with a flexible registry system for Ollama, MLX, and future integrations.
   - **Session Management**: Handles state persistence to maintain context across interactions.
   - **Prompts**: Stores and manages prompt templates for various modes (chat, plan, code).
-  - **Utilities**: Suppports ancillary functions and helpers.
+  - **Configuration**: Advanced per-mode model selection with automatic migration from older versions.
+  - **Utilities**: Supports ancillary functions and helpers.
 
 ## Overview
 
@@ -22,12 +23,15 @@ LADA provides a terminal-based interface for AI-assisted development with three 
 
 ## Features
 
-- 🏠 **Fully Local**: Runs entirely on your machine using Ollama
+- 🏠 **Fully Local**: Runs entirely on your machine using Ollama or MLX
+- 🤖 **Multi-Engine Support**: Use different LLM engines (Ollama, MLX) for different tasks
+- 🎯 **Per-Mode Models**: Configure different models for chat, planning, and coding
 - 🔧 **Multiple Modes**: Chat, planning, and coding assistance
 - 📁 **Project Aware**: Understands your project structure and respects .gitignore
 - 💾 **Session Persistence**: Maintains context across sessions
 - 🔌 **Extensible**: Plugin architecture for custom functionality
-- ☁️ **Optional Cloud**: Can fall back to cloud models when needed
+- ⚡ **Flexible Configuration**: Mix and match models based on your needs
+- 🔄 **Automatic Migration**: Seamlessly upgrades from older configurations
 
 ## Requirements
 
@@ -129,17 +133,62 @@ python lada.py init
 
 ## Configuration
 
-Create a `.lada_config.yml` file in your project root to customize settings:
+LADA supports flexible configuration with per-mode model selection. Create a `.lada_config.yml` file in your project root:
 
+### Basic Configuration
 ```yaml
+version: 2
+
 model:
   default_model: "codellama:7b"
   temperature: 0.7
   ollama_host: "http://localhost:11434"
 
-session:
-  auto_save: true
-  auto_save_interval: 300  # seconds
+session_dir: ".lada/sessions"
+auto_save: true
+auto_save_interval: 300  # seconds
+```
+
+### Advanced Multi-Engine Configuration
+```yaml
+version: 2
+
+model:
+  # Use different models for each mode
+  chat_model: "codellama:7b"           # Ollama for chat
+  plan_model: "mlx:GLM-4.5-Air"        # MLX for planning
+  code_model: "deepseek-coder:6.7b"    # Specialized model for coding
+  
+  # Engine configurations
+  engines:
+    ollama:
+      host: "http://localhost:11434"
+      timeout: 120
+    mlx:
+      host: "http://localhost:8000"
+      timeout: 180
+      extra_params:
+        gpu_layers: 32
+  
+  # Global parameters
+  temperature: 0.7
+  max_tokens: 4096
+
+session_dir: ".lada/sessions"
+plan_dir: ".lada/plans"
+auto_save: true
+```
+
+### Model Selection Examples
+
+You can override the configured model for any command:
+
+```bash
+# Use MLX for chat
+python lada.py chat --model mlx:GLM-4.5-Air
+
+# Use a specific Ollama model for planning
+python lada.py plan file.py --model llama2:13b
 ```
 
 ## Project Status

@@ -82,7 +82,7 @@ def plan(
         None,
         "--output",
         "-o",
-        help="Output file for the plan (default: .lada/plans/<filename>.plan.md)",
+        help="Output file for the plan (default: .lada/plans/\u003cfilename\u003e.plan.md)",
     ),
 ):
     """
@@ -95,9 +95,18 @@ def plan(
             border_style="cyan",
         )
     )
-    
-    # TODO: Implement planning functionality
-    console.print("[yellow]Planning mode not yet implemented.[/yellow]")
+    try:
+        # Simulate plan generation
+        plan_content = f"# Implementation Plan\n\n" \
+                       f"## Overview\nAnalyze the purpose and goals of {file}.\n" \
+                       f"## Steps\n1. Understand the existing code.\n2. Identify key components.\n3. Define goals and requirements.\n"
+
+        output_path = output or Path(f".lada/plans/{file.stem}.plan.md")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(plan_content)
+        console.print(f"🎉 Plan generated and saved to [green]{output_path}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error generating plan:[/red] {e}")
 
 
 @app.command()

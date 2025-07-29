@@ -29,9 +29,15 @@ LADA (Local AI-Driven Development Assistant) is a command-line tool that provide
                    └────────┬─────────────────┘
                             ▼
                     ┌───────────────┐
-                    │  LLM Interface │
-                    │   (Ollama)    │
+                    │ Model Registry │
                     └───────┬───────┘
+                            ▼
+                 ┌──────────┴──────────┐
+                 ▼                     ▼
+         ┌──────────────┐     ┌──────────────┐
+         │ Ollama LLM   │     │   MLX LLM    │
+         └──────┬───────┘     └──────┬───────┘
+                 └──────────┬─────────┘
                             ▼
                     ┌───────────────┐
                     │ Prompt Engine │
@@ -66,14 +72,21 @@ LADA (Local AI-Driven Development Assistant) is a command-line tool that provide
 
 ### 2. LLM Interface (`lada/models/`)
 
-**Purpose**: Abstract interface for LLM interactions.
+**Purpose**: Multi-engine LLM support with flexible model selection.
 
-**Planned Structure**:
+**Architecture**:
 ```python
 # base.py - Abstract base class
 class BaseLLM:
-    async def generate(prompt: str) -> str
-    async def stream(prompt: str) -> AsyncIterator[str]
+    async def generate(prompt: str, **kwargs) -> LLMResponse
+    async def stream(prompt: str, **kwargs) -> AsyncIterator[str]
+    async def list_models() -> List[str]
+    async def is_available() -> bool
+
+# registry.py - Model Registry
+class ModelRegistry:
+    def get_llm(model_name: str) -> BaseLLM
+    def _parse_model_name(model_name: str) -> Tuple[engine, model]
 
 # ollama.py - Ollama implementation
 class OllamaLLM(BaseLLM):
@@ -81,17 +94,23 @@ class OllamaLLM(BaseLLM):
     - Model management
     - Error handling and retries
 
-# openai.py - Optional OpenAI implementation
-class OpenAILLM(BaseLLM):
-    - API key management
-    - Cost tracking
+# mlx.py - MLX implementation
+class MLXLLM(BaseLLM):
+    - HTTP client for MLX FastAPI server
+    - GLM and other MLX model support
+    - Memory-efficient processing
+
+# Future: openai.py, anthropic.py, etc.
 ```
 
-**Features**:
-- Model abstraction for easy switching
-- Streaming support for better UX
-- Token counting and context management
-- Retry logic with exponential backoff
+**Key Features**:
+- **Model Registry**: Factory pattern for LLM instantiation
+- **Engine Detection**: Smart parsing of model names (e.g., "mlx:GLM-4.5-Air")
+- **Per-Mode Models**: Different models for chat, planning, and coding
+- **Flexible Configuration**: Mix and match engines based on task requirements
+- **Streaming Support**: Better UX with real-time responses
+- **Retry Logic**: Automatic retry with exponential backoff
+- **Error Handling**: Engine-specific error messages and recovery
 
 ### 3. Session Management (`lada/session/`)
 
@@ -134,31 +153,56 @@ class OpenAILLM(BaseLLM):
 
 ### 5. Configuration System (`lada/config.py`)
 
-**Purpose**: Type-safe configuration management.
+**Purpose**: Advanced configuration with per-mode model selection and multi-engine support.
 
-**Current Implementation**:
-- Pydantic models for validation
-- YAML file support
-- Hierarchical configuration
+**Key Features**:
+- **Per-Mode Models**: Configure different models for chat, plan, and code modes
+- **Multi-Engine Support**: Configure multiple LLM engines (Ollama, MLX, etc.)
+- **Automatic Migration**: Seamlessly upgrades from v1 to v2 configuration format
+- **Type-Safe Validation**: Pydantic models ensure configuration correctness
+- **Backward Compatibility**: Old configurations continue to work
 
-**Configuration Schema**:
+**Configuration Schema (v2)**:
 ```yaml
+version: 2  # Configuration version
+
 model:
-  default_model: str
-  ollama_host: str
-  timeout: int
-  temperature: float
-  max_tokens: int?
+  # Per-mode model selection
+  chat_model: str?      # e.g., "codellama:7b" or "mlx:GLM-4.5-Air"
+  plan_model: str?      # Different model for planning
+  code_model: str?      # Specialized model for coding
+  
+  # Legacy/fallback
+  default_model: str    # Used when mode-specific model not set
+  
+  # Engine configurations
+  engines:
+    ollama:
+      host: str         # Default: "http://localhost:11434"
+      timeout: int      # Default: 120
+      max_retries: int  # Default: 3
+    mlx:
+      host: str         # Default: "http://localhost:8000"
+      timeout: int      # Default: 120
+      extra_params: dict  # Engine-specific parameters
+  
+  # Global parameters
+  temperature: float    # Default: 0.7
+  max_tokens: int?      # Optional token limit
 
-session:
-  auto_save: bool
-  auto_save_interval: int
-  max_history: int
-
-project:
-  ignore_patterns: list[str]
-  max_file_size: int
+# Session and storage
+session_dir: Path       # Default: ".lada/sessions"
+plan_dir: Path          # Default: ".lada/plans"
+backup_dir: Path        # Default: ".lada/backups"
+auto_save: bool         # Default: true
+auto_save_interval: int # Default: 300 seconds
 ```
+
+**Configuration Classes**:
+- `EngineConfig`: Engine-specific settings
+- `ModelConfig`: Model selection and parameters
+- `LADAConfig`: Main configuration container
+- `ConfigManager`: Handles loading, saving, and migration
 
 ### 6. File Operations (`lada/utils/file_handler.py`)
 
