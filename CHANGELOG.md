@@ -24,11 +24,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Advanced Configuration System**: Version 2 configuration with automatic migration
 - **MLX Integration**: Support for MLX models via FastAPI server
 - **Enhanced Error Handling**: Engine-specific exceptions and error messages
+- **Code Command Implementation**: Complete code generation and refactoring functionality
+- **Flexible Prompt Templates**: Adaptive prompts that adjust based on context and input type
+- **Rich Output Formatting**: Beautiful markdown rendering for all generated content
+- **Command-Specific Model Overrides**: All commands now support --model parameter
 
 ### Changed
 - **Configuration System**: Upgraded from simple model config to advanced multi-engine configuration
 - **Model Interface**: Refactored to support multiple LLM engines through registry pattern
 - **Architecture**: Updated system design to support pluggable LLM implementations
+- **Command Structure**: Modularized all commands (chat, plan, code) into separate async functions
+- **CLI Pattern**: Consistent async command handling across all modes
+- **Prompt Templates**: Enhanced templates for adaptability to different use cases
 
 ### Technical Details
 - Set up Python 3.12.6 with pyenv for version management
@@ -41,6 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Configuration Migration**: Automatic upgrade from v1 to v2 configuration format
 - **Engine Abstraction**: Implemented `BaseLLM` interface with `OllamaLLM` and `MLXLLM`
 - **Smart Model Parsing**: Support for "engine:model" naming convention
+- **Async Architecture**: All LLM operations use async/await for better performance
+- **Code Generation Features**: Extract code from markdown, save to files, refactoring support
+- **Plan Command Enhancement**: Flexible prompts, file analysis, markdown output
+- **Chat Command Refactor**: Multi-engine support with proper error handling
 
 ## [0.1.0] - TBD (First Alpha Release)
 

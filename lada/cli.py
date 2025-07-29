@@ -13,7 +13,7 @@ from rich.panel import Panel
 from pathlib import Path
 
 from lada import __version__
-from lada.commands import chat_mode as run_chat_mode
+from lada.commands import chat_mode as run_chat_mode, plan_mode as run_plan_mode, code_mode as run_code_mode
 
 # Initialize Typer app and Rich console
 app = typer.Typer(
@@ -54,14 +54,19 @@ def main(
 @app.command()
 def chat(
     model: Optional[str] = typer.Option(
-        "codellama:7b",
+        None,
         "--model",
         "-m",
-        help="Model to use for chat",
+        help="Model to use for chat (e.g., 'codellama:7b' or 'mlx:GLM-4.5-Air'). If not specified, uses configured default.",
     ),
 ):
     """
     Start an interactive chat session with the AI assistant.
+    
+    Examples:
+        lada chat                    # Use configured default model
+        lada chat -m codellama:7b    # Use specific Ollama model
+        lada chat -m mlx:GLM-4.5-Air # Use MLX model
     """
     try:
         asyncio.run(run_chat_mode(model))
@@ -78,64 +83,57 @@ def plan(
         help="File to generate implementation plan for",
         exists=True,
     ),
+    model: Optional[str] = typer.Option(
+        None,
+        "--model",
+        "-m",
+        help="Model to use for planning (e.g., 'llama2:13b' or 'mlx:GLM-4.5-Air'). If not specified, uses configured default.",
+    ),
     output: Optional[Path] = typer.Option(
         None,
         "--output",
         "-o",
-        help="Output file for the plan (default: .lada/plans/\u003cfilename\u003e.plan.md)",
+        help="Output file for the plan (default: .lada/plans/<filename>.plan.md)",
     ),
 ):
     """
     Generate an implementation plan for a file or module.
+    
+    Examples:
+        lada plan main.py                        # Use configured default model
+        lada plan main.py -m mlx:GLM-4.5-Air     # Use MLX model for planning
+        lada plan main.py -o custom-plan.md      # Save to custom location
     """
-    console.print(
-        Panel.fit(
-            f"📋 [bold cyan]Planning Mode[/bold cyan]\n"
-            f"Analyzing: [green]{file}[/green]",
-            border_style="cyan",
-        )
-    )
     try:
-        # Simulate plan generation
-        plan_content = f"# Implementation Plan\n\n" \
-                       f"## Overview\nAnalyze the purpose and goals of {file}.\n" \
-                       f"## Steps\n1. Understand the existing code.\n2. Identify key components.\n3. Define goals and requirements.\n"
-
-        output_path = output or Path(f".lada/plans/{file.stem}.plan.md")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(plan_content)
-        console.print(f"🎉 Plan generated and saved to [green]{output_path}[/green]")
+        asyncio.run(run_plan_mode(file, model, output))
+    except KeyboardInterrupt:
+        console.print("\n📋 Planning interrupted.")
     except Exception as e:
-        console.print(f"[red]Error generating plan:[/red] {e}")
+        console.print(f"[red]Error:[/red] {e}")
 
 
 @app.command()
 def code(
-    file: Path = typer.Argument(
-        ...,
-        help="File to generate or refactor code for",
-    ),
-    refactor: bool = typer.Option(
-        False,
-        "--refactor",
-        "-r",
-        help="Refactor existing code instead of generating new code",
-    ),
+    target: str = typer.Argument(help="File path or description of what to generate"),
+    model: Optional[str] = typer.Option(None, "--model", "-m", help="Model to use (overrides config)"),
+    output: Optional[str] = typer.Option(None, "--output", "-o", help="Output file path"),
+    requirements: Optional[str] = typer.Option(None, "--requirements", "-r", help="Additional requirements or context"),
+    refactor: bool = typer.Option(False, "--refactor", help="Refactor existing code (will read target file)")
 ):
     """
     Generate or refactor code with AI assistance.
-    """
-    mode = "Refactoring" if refactor else "Code Generation"
-    console.print(
-        Panel.fit(
-            f"💻 [bold cyan]{mode} Mode[/bold cyan]\n"
-            f"Target: [green]{file}[/green]",
-            border_style="cyan",
-        )
-    )
     
-    # TODO: Implement code generation functionality
-    console.print(f"[yellow]{mode} mode not yet implemented.[/yellow]")
+    Examples:
+        lada code hello.py                       # Generate new code file
+        lada code main.py --refactor            # Refactor existing code
+        lada code "FastAPI server" -o app.py    # Generate from description
+    """
+    try:
+        asyncio.run(run_code_mode(target, model, output, requirements, refactor))
+    except KeyboardInterrupt:
+        console.print("\n💻 Code generation interrupted.")
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
 
 
 @app.command()

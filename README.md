@@ -90,6 +90,11 @@ python lada.py --help
 
 # Show version
 python lada.py --version
+
+# Show help for specific command
+python lada.py chat --help
+python lada.py plan --help
+python lada.py code --help
 ```
 
 ### Chat Mode
@@ -111,17 +116,32 @@ python lada.py plan path/to/file.py
 
 # Save plan to custom location
 python lada.py plan file.py --output my-plan.md
+
+# Use specific model for planning
+python lada.py plan main.py --model mlx:GLM-4.5-Air
 ```
 
 ### Code Mode
 Generate new code or refactor existing code:
 
 ```bash
-# Generate new code
+# Generate new code from description
+python lada.py code "FastAPI server with user authentication"
+
+# Generate code for a new file
 python lada.py code new_module.py
 
 # Refactor existing code
 python lada.py code existing_module.py --refactor
+
+# With specific requirements
+python lada.py code calculator.py --requirements "Add scientific functions"
+
+# Save to specific location
+python lada.py code "data parser" --output src/parser.py
+
+# Use a specific model
+python lada.py code app.py --model mlx:GLM-4.5-Air
 ```
 
 ### Initialize Project

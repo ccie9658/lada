@@ -53,19 +53,23 @@ LADA (Local AI-Driven Development Assistant) is a command-line tool that provide
 **Key Components**:
 - **Typer Application**: Main app instance with commands
 - **Rich Console**: For formatted output and user feedback
-- **Command Handlers**: Individual functions for each mode
+- **Command Handlers**: Individual async functions for each mode
+- **Modular Commands**: Each command imports from dedicated module
 
 **Commands**:
 - `chat`: Interactive AI conversation mode
   - Options: `--model` to specify LLM model
+  - Implemented: Multi-engine support, error handling, model selection
   - Future: Streaming responses, conversation history
 - `plan`: Generate implementation plans
   - Arguments: Target file path
-  - Options: `--output` for custom output location
+  - Options: `--model` for model override, `--output` for custom location
+  - Implemented: Flexible prompts, markdown preview, file saving
   - Future: Multi-file analysis, project-wide planning
 - `code`: Code generation and refactoring
-  - Arguments: Target file path
-  - Options: `--refactor` flag for refactoring mode
+  - Arguments: Target file path or description
+  - Options: `--model`, `--refactor`, `--requirements`, `--output`
+  - Implemented: Full code generation, refactoring, markdown extraction
   - Future: Diff preview, automatic testing
 - `init`: Project initialization
   - Future: Interactive setup wizard
@@ -142,14 +146,18 @@ class MLXLLM(BaseLLM):
 
 **Current Templates**:
 - `chat.txt`: General conversation template
-- `plan.txt`: Code analysis and planning template
-- `code.txt`: Code generation template
+- `plan.txt`: Adaptive planning template that adjusts to input type
+- `code.txt`: Flexible code generation template with multiple modes
+
+**Implemented Features**:
+- **Adaptive Templates**: Prompts adjust based on context and input type
+- **Context Injection**: Templates include project context and file content
+- **Mode-Specific Behavior**: Different guidance for new code vs refactoring
 
 **Planned Features**:
 - Template versioning
-- Dynamic prompt construction
-- Context injection system
 - Custom prompt override support
+- Template hot-reloading
 
 ### 5. Configuration System (`lada/config.py`)
 
@@ -230,6 +238,33 @@ auto_save_interval: int # Default: 300 seconds
 - **Framework**: `pytest` is used for writing and running tests.
 - **Location**: Tests reside in the `tests/` directory.
 - **Coverage**: Initial tests for CLI commands.
+
+## Command Implementation Pattern
+
+All commands follow a consistent async pattern:
+
+1. **Module Structure** (`lada/commands/{command}.py`):
+   ```python
+   async def {command}_mode(args...):
+       # Load configuration
+       # Get model from registry
+       # Check availability
+       # Load prompt template
+       # Execute LLM operation
+       # Display/save results
+   ```
+
+2. **CLI Integration** (`lada/cli.py`):
+   ```python
+   @app.command()
+   def {command}(args...):
+       asyncio.run(run_{command}_mode(args...))
+   ```
+
+3. **Error Handling**:
+   - LLMConnectionError for service issues
+   - LLMException for general errors
+   - Graceful degradation with helpful messages
 
 ## Development Workflow
 1. **Setup**: Clone repository, set up virtual environment, and install dependencies.
