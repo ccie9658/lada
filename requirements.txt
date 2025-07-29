@@ -9,6 +9,11 @@ pydantic==2.5.3
 # HTTP client for Ollama API
 requests==2.31.0
 
+# MLX Support (Apple Silicon)
+mlx==0.27.1
+mlx-lm==0.26.1
+transformers==4.54.1
+
 # Development tools
 pytest==8.0.0
 pytest-cov==4.1.0
